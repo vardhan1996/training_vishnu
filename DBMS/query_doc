@@ -1,0 +1,42 @@
+Query1:
+
+with orders as(
+select
+state,
+row_number() over (order by y06 desc) as a,
+row_number() over (order by y07 desc) as b,
+row_number() over (order by y08 desc) as c,
+row_number() over (order by y09 desc) as d,
+row_number() over (order by y10 desc) as e,
+row_number() over (order by y11 desc) as f,
+row_number() over (order by y12 desc) as g,
+row_number() over (order by y13 desc) as h,
+row_number() over (order by y14 desc) as i
+from accidents)
+select
+a.state as y06,
+b.state as y07,
+c.state as y08,
+d.state as y09,
+e.state as y10,
+f.state as y11,
+g.state as y12,
+h.state as y13,
+i.state as y14
+from orders as a
+join orders as b on a.a=b.b
+join orders as c on a.a=c.c
+join orders as d on a.a=d.d
+join orders as e on a.a=e.e
+join orders as f on a.a=f.f
+join orders as g on a.a=g.g
+join orders as h on a.a=h.h
+join orders as i on a.a=i.i
+order by a.a limit 3;
+
+
+Query2:
+
+SELECT accidents.state,(accidents.y11::float/population.y11) AS percap
+	 FROM accidents JOIN population ON accidents.state=population.state 
+		ORDER BY percap desc LIMIT 3;
