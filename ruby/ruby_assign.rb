@@ -72,7 +72,6 @@ def show_total_input?
   return (show_total == "true"? true : false)
 end
 
-
 #group_by logic
 def group_by_functionality(records, group_bi, should_compare, compare_on)
   duplicate = []
@@ -94,7 +93,6 @@ def group_by_functionality(records, group_bi, should_compare, compare_on)
   return duplicate
 end           #end of group_by_functionality
 
-
 #in group_by taking the average using count
 def averaging_of_group_by(duplicate)
   duplicate.each do |dup_record|
@@ -104,14 +102,12 @@ def averaging_of_group_by(duplicate)
   end
 end           #end of averaging_of_group_by
 
-
 #sorting
 def sort_by_functionality(duplicate, sort_bi)
   duplicate.sort! do |a,b|
     b[sort_bi.to_sym] <=> a[sort_bi.to_sym]      # b<=>a for descending order
   end
 end          #end of sort_by_functionality
-
 
 #displaying the output
 def display_fields_only(group_bi, display_fields)
@@ -173,7 +169,7 @@ def display_if_should_compare(duplicate, display_fields, compare_on, first_eleme
         if f1[field.to_sym].nonzero?
           print "#{(f1[field.to_sym] - f2[field.to_sym]) * 100 / (f1[field.to_sym])}%            "
         else
-            print "N/A"
+            print "N/A             "
         end      #end of if
       end        #end of loop display_fields
       puts " "
@@ -207,7 +203,6 @@ def add_elements(element,display_fields,duplicate,compare_on)
   puts " "
 end             #end of add_elements method
 
-
 def start_of_main
   #input data from given assignment
   records = [ {student_id: 1, department: "a1", maths: 43, physics: 54, chemistry:65, year: 2016, count: 1},
@@ -223,12 +218,13 @@ def start_of_main
   sort_bi = sort_by_input
   display_fields = display_fields_input(records)
   should_compare = should_compare_input?
-  show_total = show_total_input?
+
   if should_compare
     compare_on = compare_on_input
     first_element = comparer_element_input(records, compare_on, "First")
     second_element = comparer_element_input(records, compare_on, "Second")
   end
+  show_total = show_total_input?
 
   #calling all the methods
   duplicate = group_by_functionality(records, group_bi, should_compare, compare_on)
@@ -252,6 +248,5 @@ def start_of_main
     show_only_total(display_fields, duplicate)        #printing only total if should_compare is false and show_total is true
   end     #end of if show_total_input
 end       #end of start_of_main method
-
 
 start_of_main           #calling main method
