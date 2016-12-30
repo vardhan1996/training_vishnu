@@ -1,265 +1,254 @@
-#input data from given assignment
-
-records = []
-
-record = {
-  student_id: 1,
-  department: "a1",
-  maths: 43,
-  physics: 54,
-  chemistry:65,
-  year: 2016,
-  count: 1
-}
-records << record
-
-record = {
-  student_id: 2,
-  department: "a1",
-  maths: 66,
-  physics: 52,
-  chemistry:65,
-  year: 2016,
-  count: 1
-}
-records << record
-
-record = {
-  student_id: 3,
-  department: "a7",
-  maths: 87,
-  physics: 32,
-  chemistry:43,
-  year: 2016,
-  count: 1
-}
-records << record
-
-record = {
-  student_id: 1,
-  department: "a1",
-  maths: 21,
-  physics: 52,
-  chemistry:65,
-  year: 2015,
-  count: 1
-}
-records << record
-
-record = {
-  student_id: 2,
-  department: "a1",
-  maths: 68,
-  physics: 50,
-  chemistry:65,
-  year: 2015,
-  count: 1
-}
-records << record
-
-record = {
-  student_id: 3,
-  department: "a7",
-  maths: 85,
-  physics: 22,
-  chemistry:43,
-  year: 2015,
-  count: 1
-}
-records << record
-
-record = {
-  student_id: 4,
-  department: "a7",
-  maths: 21,
-  physics: 22,
-  chemistry:13,
-  year: 2016,
-  count: 1
-}
-records << record
-
-#starting of the program
-
-#taking user input
-print "Group_by ?  "
-group_bi = gets.chomp
-group_bi.downcase!
-
-while (group_bi != "student_id" && group_bi != "department" && group_bi != "year")
-  print "Enter valid Group_by ?  "
-  group_bi = gets.chomp
-  group_bi.downcase!
+#taking all the required user input
+def group_by_input
+  begin
+    print "Enter valid Group_by ?  "
+    group_bi = gets.chomp
+    group_bi.downcase!
+  end until (["student_id","department","year"].include? group_bi)
+  return group_bi
 end
 
-print "Sort_by ?  "
-sort_bi = gets.chomp
-sort_bi.downcase!
-
-while (sort_bi != "maths" && sort_bi != "physics" && sort_bi != "chemistry")
-  print "Enter valid Group_by ?  "
-  sort_bi = gets.chomp
-  sort_bi.downcase!
+def sort_by_input
+  begin
+    print "Enter valid Sort_by ?  "
+    sort_bi = gets.chomp
+    sort_bi.downcase!
+  end until (["physics", "chemistry", "maths"].include? sort_bi)
+  return sort_bi
 end
 
-print "Display_fields ?  "
-display = gets.chomp
-display.downcase!
-display_fields = display.split(",")
+def display_fields_input(records)
+  begin
+    print "Enter all valid Display_fields ?  "
+    display = gets.chomp
+    display.downcase!
+    display_fields = display.split(",")
+    flag = true
 
-display_fields.each {
-  |field| puts "#{field} is not a valid field" unless records[0].has_key? field.to_sym
-}
-
-print "Should_compare ?  "
-should_compare = ((gets.chomp).downcase == "true")
-if should_compare
-  print "Compare_on ?  "
-  compare_on = gets.chomp
-  print "First_comprer_element:  "
-  first_element = gets.chomp
-  print "Second_comparer_element:  "
-  second_element = gets.chomp
+    display_fields.each do |field|
+       (puts "#{field} is not a valid field"
+        flag = false) unless records[0].has_key? field.to_sym
+    end
+  end until flag
+  return display_fields
 end
 
-print "Show_total ?  "
-show_total = ((gets.chomp).downcase == "true")
+def should_compare_input
+  begin
+    print "Should_compare (true/false) ? "
+    should_compare = gets.chomp
+    should_compare.downcase!
+  end until (["true","false"].include? should_compare)
+  return (should_compare == "true"? true : false)
+end
+
+def compare_on_input
+  begin
+    print "Enter valid field to Compare_on ?  "
+    compare_on = gets.chomp
+    compare_on.downcase!
+  end until (["student_id","department","year"].include? compare_on)
+  return compare_on
+end
+
+def first_element_input(records, compare_on)
+  begin
+    print "Enter valid First_comparer_element:  "
+    first_element = gets.chomp
+    first_element.downcase!
+  end until records.any? {|record| record[compare_on.to_sym].to_s == first_element.to_s}
+  return first_element
+end
+
+def second_element_input(records, compare_on)
+  begin
+    print "Enter valid Second_comparer_element:  "
+    second_element = gets.chomp
+    second_element.downcase!
+  end until records.any? {|record| record[compare_on.to_sym].to_s == second_element.to_s}
+  return second_element
+end
+
+def show_total_input
+  begin
+    print "Show_total (true/false) ? "
+    show_total = gets.chomp
+    show_total.downcase!
+  end until (["true","false"].include? show_total)
+  return (show_total == "true"? true : false)
+end
+
 
 #group_by logic
-duplicate = []
-
-records.each{
-  |record|
-  flag = false;
-  duplicate.each{
-    |dup_record|
-    (flag = true;
-    dup_record[:maths] += record[:maths]
-    dup_record[:physics] += record[:physics]
-    dup_record[:chemistry] += record[:chemistry]
-    dup_record[:count] += 1
-    ) if (!should_compare && (dup_record[group_bi.to_sym] == record[group_bi.to_sym])) || (should_compare && (dup_record[group_bi.to_sym] == record[group_bi.to_sym]) && (dup_record[compare_on.to_sym] == record[compare_on.to_sym] ))
-  }
-
-  duplicate << record if flag == false
-}
-
+def group_by_functionality(records, group_bi, should_compare, compare_on)
+  duplicate = []
+  records.each do |record|
+    flag = false;
+    duplicate.each do |dup_record|
+      (flag = true;
+      dup_record[:maths] += record[:maths]
+      dup_record[:physics] += record[:physics]
+      dup_record[:chemistry] += record[:chemistry]
+      dup_record[:count] += 1
+      ) if (!should_compare && (dup_record[group_bi.to_sym] == record[group_bi.to_sym])) || (should_compare && (dup_record[group_bi.to_sym] == record[group_bi.to_sym]) && (dup_record[compare_on.to_sym] == record[compare_on.to_sym] ))
+    end       #end of duplicate
+    duplicate << record if flag == false
+  end         #end of records
+  return duplicate
+end           #end of group_by_functionality
 
 
 #in group_by taking the average using count
-duplicate.each{
-  |dup_record|
-  dup_record.each{
-    |key,val|
-    dup_record[key] = val/dup_record[:count] if key == :maths || key == :physics || key == :chemistry
-  }
-}
+def averaging_of_group_by(duplicate)
+  duplicate.each do |dup_record|
+    dup_record.each do |key,val|
+      dup_record[key] = val/dup_record[:count] if ([:maths, :physics, :chemistry].include? key)
+    end
+  end
+end           #end of averaging_of_group_by
+
 
 #sorting
-duplicate.sort!{
-  |a,b| b[sort_bi.to_sym] <=> a[sort_bi.to_sym]  # b<=>a for descending order
-}
+def sort_by_functionality(duplicate, sort_bi)
+  duplicate.sort! do |a,b|
+    b[sort_bi.to_sym] <=> a[sort_bi.to_sym]      # b<=>a for descending order
+  end
+end          #end of sort_by_functionality
 
-#display
 
-#displaying fields
-
-print "#{group_bi}     "
-display_fields.each{ |field| print "#{field}       "}
-puts " "
+#displaying the output
+def display_fields_only(group_bi, display_fields)
+  puts "\n"
+  print "#{group_bi}     "
+  display_fields.each do |field|
+    print "#{field}       "
+  end
+  puts " "
+end
 
 #displaying data
-unless should_compare   # if should_compare is true
-  duplicate.each{
-    |dup_record|
+def display_unless_should_compare(group_bi, display_fields, duplicate)
+  duplicate.each do |dup_record|
     print "#{dup_record[group_bi.to_sym]}               "
-    display_fields.each{
-      |field| print "#{dup_record[field.to_sym]}             "
-    }
+    display_fields.each do |field|
+       print "#{dup_record[field.to_sym]}             "
+    end         #end of field
     puts " "
-  }
+  end         #end of dup_record
+end
 
-else  # if should_compare is true
+def display_if_should_compare(duplicate, display_fields, compare_on, first_element, second_element)
   check_duplicates = []
+  duplicate.each do |dup_record1|                                      #iterating whole length of duplicate array
+    unless check_duplicates.include? dup_record1[:student_id]       #check for duplicates
+      puts dup_record1[:student_id]                                 #print id for the first entry
+      check_duplicates << dup_record1[:student_id]                  #push the element into dup array for later reference
 
-  for index1 in 0...duplicate.length                                  #iterating whole length of duplicate array
-    unless check_duplicates.include? duplicate[index1][:student_id]   #check for duplicates
-      puts duplicate[index1][:student_id]                             #print id for the first entry
-      check_duplicates << duplicate[index1][:student_id]              #push the element into dup array for later reference
-
-      f1 = {maths: 0, physics: 0, chemistry: 0, year: first_element}                       #initializing f1 & f2 to 0
+      f1 = {maths: 0, physics: 0, chemistry: 0, year: first_element}      #initializing f1 & f2 to 0
       f2 = {maths: 0, physics: 0, chemistry: 0, year: second_element}
-      for index2 in index1...duplicate.length                         #iterating the inner loop for remaining duplicates of current element
-        if duplicate[index1][:student_id] == duplicate[index2][:student_id]
-          f1=duplicate[index2] if duplicate[index2][compare_on.to_sym] == first_element.to_i   #storing f1 & f2 objects to find change
-          f2=duplicate[index2] if duplicate[index2][compare_on.to_sym] == second_element.to_i
-          print "year:#{duplicate[index2][compare_on.to_sym]}         "
-          display_fields.each{
-            |field| print "#{duplicate[index2][field.to_sym]}             "
-          }
+      duplicate.each do |dup_record2|                              #iterating the inner loop for remaining duplicates of current element
+        if dup_record1[:student_id] == dup_record2[:student_id]
+          f1=dup_record2 if dup_record2[compare_on.to_sym] == first_element.to_i   #storing f1 & f2 objects to find change
+          f2=dup_record2 if dup_record2[compare_on.to_sym] == second_element.to_i
+          print "year:#{dup_record2[compare_on.to_sym]}         "
+          display_fields.each do |field|
+            print "#{dup_record2[field.to_sym]}             "
+          end
           puts " "
         end #end of if
-      end #end of inner for
+      end #end of inner loop of duplicate
 
-      if f1[:maths] == 0 && f1[:physics] == 0 && f1[:chemistry] == 0   #for missing comparer element 1
+      if f1[:maths] == 0 && f1[:physics] == 0 && f1[:chemistry] == 0      #for missing comparer element 1
         print "year:#{f1[:year]}         "
-        display_fields.each{
-          |field| print "#{f1[field.to_sym]}               "
-        }
+        display_fields.each do |field|
+          print "#{f1[field.to_sym]}               "
+        end
         puts " "
       elsif f2[:maths] == 0 && f2[:physics] == 0 && f2[:chemistry] == 0   #for missing comparer element 2
         print "year:#{f2[:year]}         "
-        display_fields.each{
-          |field| print "#{f2[field.to_sym]}               "
-        }
+        display_fields.each do |field|
+          print "#{f2[field.to_sym]}               "
+        end
         puts " "
-      end
+      end               #end of if for missing f1 or f2
 
       print "Change            "
-      display_fields.each{
-        |field| print "#{(f1[field.to_sym] - f2[field.to_sym])*100/ (f1[field.to_sym].nonzero? || 1)}%            "
-      }
+      display_fields.each do |field|
+         print "#{(f1[field.to_sym] - f2[field.to_sym]) * 100 / (f1[field.to_sym].nonzero? || 1)}%            "
+      end
       puts " "
     end     #end of inner unless
-  end       #end of outer for
-
-end   #end of outer unless & else
-
-
-#function for adding elements for getting total
-def add_elements(element,display_fields,duplicate,compare_on)
-  print "Total(#{element})        "
-  display_fields.each{
-    |field|
-    sum = 0
-    duplicate.each{
-      |dup_record| sum += dup_record[field.to_sym] if dup_record[compare_on.to_sym] == element.to_i
-    }
-    print "#{sum}            "
-  }
-  puts " "
-end
-
+  end       #end of outer loop of duplicate
+end         #end of display_if_should_compare method
 
 #show_total
-if show_total
-  if should_compare
-    puts " "
-    #for first compare element
-    add_elements(first_element,display_fields,duplicate,compare_on)
-
-    #for second_element
-    add_elements(second_element,display_fields,duplicate,compare_on)
+def show_only_total(display_fields, duplicate)
+  print "Total           "
+  display_fields.each do |field|
+    sum = 0
+    duplicate.each do |dup_record|
+      sum += dup_record[field.to_sym]
+    end
+    print "#{sum}            "
   end
   puts " "
-  print "Total           "
-  display_fields.each{
-    |field|
-    sum = 0
-    duplicate.each{
-      |dup_record|  sum += dup_record[field.to_sym]
-    }
-    print "#{sum}            "
-  }
-  puts " "
 end
+
+#method for adding elements for getting and printing total on comparer elements
+def add_elements(element,display_fields,duplicate,compare_on)
+  print "Total(#{element})        "
+  display_fields.each do |field|
+    sum = 0
+    duplicate.each do |dup_record|
+      sum += dup_record[field.to_sym] if dup_record[compare_on.to_sym] == element.to_i
+    end
+    print "#{sum}            "
+  end           #end of display_fields
+  puts " "
+end             #end of add_elements method
+
+
+def start_of_main
+  #input data from given assignment
+  records = [ {student_id: 1, department: "a1", maths: 43, physics: 54, chemistry:65, year: 2016, count: 1},
+              {student_id: 2, department: "a1", maths: 66, physics: 52, chemistry:65, year: 2016, count: 1},
+              {student_id: 3, department: "a7", maths: 87, physics: 32, chemistry:43, year: 2016, count: 1},
+              {student_id: 1, department: "a1", maths: 21, physics: 52, chemistry:65, year: 2015, count: 1},
+              {student_id: 2, department: "a1", maths: 68, physics: 50, chemistry:65, year: 2015, count: 1},
+              {student_id: 3, department: "a7", maths: 85, physics: 22, chemistry:43, year: 2015, count: 1},
+              {student_id: 4, department: "a7", maths: 21, physics: 22, chemistry:13, year: 2016, count: 1} ]
+
+  #defining & initializing
+  group_bi = group_by_input
+  sort_bi = sort_by_input
+  display_fields = display_fields_input(records)
+  should_compare = should_compare_input
+  if should_compare
+    compare_on = compare_on_input
+    first_element = first_element_input(records, compare_on)
+    second_element = second_element_input(records, compare_on)
+  end
+  show_total = show_total_input
+
+  #calling all the methods
+  duplicate = group_by_functionality(records, group_bi, should_compare, compare_on)
+  averaging_of_group_by(duplicate)
+  sort_by_functionality(duplicate, sort_bi)
+  display_fields_only(group_bi, display_fields)
+  unless should_compare
+    display_unless_should_compare(group_bi, display_fields, duplicate)
+  else
+    display_if_should_compare(duplicate, display_fields, compare_on, first_element, second_element)
+  end
+  if show_total
+    if should_compare
+      puts " "
+      add_elements(first_element,display_fields,duplicate,compare_on)       #print for first compare element
+      add_elements(second_element,display_fields,duplicate,compare_on)      #print for second_element
+    end
+    puts " "
+    show_only_total(display_fields, duplicate)        #printing only total if should_compare is false and show_total is true
+  end     #end of if show_total
+end       #end of start_of_main method
+
+start_of_main           #calling main method
