@@ -166,11 +166,13 @@ def display_if_should_compare(duplicate, display_fields, compare_on, first_eleme
 
       print "Change            "
       display_fields.each do |field|
-        if f1[field.to_sym].nonzero?
-          print "#{(f1[field.to_sym] - f2[field.to_sym]) * 100 / (f1[field.to_sym])}%            "
+        begin
+          1/f1[field.to_sym]      #to handle divide by zero error
+        rescue
+          print "N/A             "
         else
-            print "N/A             "
-        end      #end of if
+          print "#{(f1[field.to_sym] - f2[field.to_sym]) * 100 / (f1[field.to_sym])}%            "
+        end      #end of begin
       end        #end of loop display_fields
       puts " "
     end     #end of inner unless
