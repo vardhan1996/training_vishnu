@@ -26,14 +26,17 @@ def display_fields_input(records)
     flag = true
 
     display_fields.each do |field|
-       (puts "#{field} is not a valid field"
-        flag = false) unless records[0].has_key? field.to_sym
-    end
-  end until flag
+      unless records[0].has_key? field.to_sym
+        puts "#{field} is not a valid field"
+        flag = false
+      end
+    end         #end of loop display_fields
+
+  end until flag    #end of begin
   return display_fields
 end
 
-def should_compare_input
+def should_compare_input?
   begin
     print "Should_compare (true/false) ? "
     should_compare = gets.chomp
@@ -51,25 +54,16 @@ def compare_on_input
   return compare_on
 end
 
-def first_element_input(records, compare_on)
+def comparer_element_input(records, compare_on, num_inp)
   begin
-    print "Enter valid First_comparer_element:  "
-    first_element = gets.chomp
-    first_element.downcase!
-  end until records.any? {|record| record[compare_on.to_sym].to_s == first_element.to_s}
-  return first_element
+    print "Enter valid #{num_inp}_comparer_element:  "
+    comparer_element = gets.chomp
+    comparer_element.downcase!
+  end until records.any? {|record| record[compare_on.to_sym].to_s == comparer_element.to_s}
+  return comparer_element
 end
 
-def second_element_input(records, compare_on)
-  begin
-    print "Enter valid Second_comparer_element:  "
-    second_element = gets.chomp
-    second_element.downcase!
-  end until records.any? {|record| record[compare_on.to_sym].to_s == second_element.to_s}
-  return second_element
-end
-
-def show_total_input
+def show_total_input?
   begin
     print "Show_total (true/false) ? "
     show_total = gets.chomp
@@ -85,12 +79,15 @@ def group_by_functionality(records, group_bi, should_compare, compare_on)
   records.each do |record|
     flag = false;
     duplicate.each do |dup_record|
-      (flag = true;
-      dup_record[:maths] += record[:maths]
-      dup_record[:physics] += record[:physics]
-      dup_record[:chemistry] += record[:chemistry]
-      dup_record[:count] += 1
-      ) if (!should_compare && (dup_record[group_bi.to_sym] == record[group_bi.to_sym])) || (should_compare && (dup_record[group_bi.to_sym] == record[group_bi.to_sym]) && (dup_record[compare_on.to_sym] == record[compare_on.to_sym] ))
+      if dup_record[group_bi.to_sym] == record[group_bi.to_sym]
+        if (!should_compare || (should_compare && dup_record[compare_on.to_sym] == record[compare_on.to_sym] ))
+          flag = true;
+          dup_record[:maths] += record[:maths]
+          dup_record[:physics] += record[:physics]
+          dup_record[:chemistry] += record[:chemistry]
+          dup_record[:count] += 1
+        end   #end of inner if
+      end     #end of outer if
     end       #end of duplicate
     duplicate << record if flag == false
   end         #end of records
@@ -137,6 +134,16 @@ def display_unless_should_compare(group_bi, display_fields, duplicate)
   end         #end of dup_record
 end
 
+def display_missing_comparer_element(comparer_element, display_fields)
+  if comparer_element[:maths] == 0 && comparer_element[:physics] == 0 && comparer_element[:chemistry] == 0      #for missing comparer element 1
+    print "year:#{comparer_element[:year]}         "
+    display_fields.each do |field|
+      print "#{comparer_element[field.to_sym]}               "
+    end
+    puts " "
+  end
+end
+
 def display_if_should_compare(duplicate, display_fields, compare_on, first_element, second_element)
   check_duplicates = []
   duplicate.each do |dup_record1|                                      #iterating whole length of duplicate array
@@ -158,24 +165,17 @@ def display_if_should_compare(duplicate, display_fields, compare_on, first_eleme
         end #end of if
       end #end of inner loop of duplicate
 
-      if f1[:maths] == 0 && f1[:physics] == 0 && f1[:chemistry] == 0      #for missing comparer element 1
-        print "year:#{f1[:year]}         "
-        display_fields.each do |field|
-          print "#{f1[field.to_sym]}               "
-        end
-        puts " "
-      elsif f2[:maths] == 0 && f2[:physics] == 0 && f2[:chemistry] == 0   #for missing comparer element 2
-        print "year:#{f2[:year]}         "
-        display_fields.each do |field|
-          print "#{f2[field.to_sym]}               "
-        end
-        puts " "
-      end               #end of if for missing f1 or f2
+      display_missing_comparer_element(f1, display_fields)
+      display_missing_comparer_element(f2, display_fields)
 
       print "Change            "
       display_fields.each do |field|
-         print "#{(f1[field.to_sym] - f2[field.to_sym]) * 100 / (f1[field.to_sym].nonzero? || 1)}%            "
-      end
+        if f1[field.to_sym].nonzero?
+          print "#{(f1[field.to_sym] - f2[field.to_sym]) * 100 / (f1[field.to_sym])}%            "
+        else
+            print "N/A"
+        end      #end of if
+      end        #end of loop display_fields
       puts " "
     end     #end of inner unless
   end       #end of outer loop of duplicate
@@ -222,24 +222,26 @@ def start_of_main
   group_bi = group_by_input
   sort_bi = sort_by_input
   display_fields = display_fields_input(records)
-  should_compare = should_compare_input
+  should_compare = should_compare_input?
+  show_total = show_total_input?
   if should_compare
     compare_on = compare_on_input
-    first_element = first_element_input(records, compare_on)
-    second_element = second_element_input(records, compare_on)
+    first_element = comparer_element_input(records, compare_on, "First")
+    second_element = comparer_element_input(records, compare_on, "Second")
   end
-  show_total = show_total_input
 
   #calling all the methods
   duplicate = group_by_functionality(records, group_bi, should_compare, compare_on)
   averaging_of_group_by(duplicate)
   sort_by_functionality(duplicate, sort_bi)
+
   display_fields_only(group_bi, display_fields)
   unless should_compare
     display_unless_should_compare(group_bi, display_fields, duplicate)
   else
     display_if_should_compare(duplicate, display_fields, compare_on, first_element, second_element)
   end
+
   if show_total
     if should_compare
       puts " "
@@ -248,7 +250,8 @@ def start_of_main
     end
     puts " "
     show_only_total(display_fields, duplicate)        #printing only total if should_compare is false and show_total is true
-  end     #end of if show_total
+  end     #end of if show_total_input
 end       #end of start_of_main method
+
 
 start_of_main           #calling main method
